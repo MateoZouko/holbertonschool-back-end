@@ -1,29 +1,38 @@
 #!/usr/bin/python3
 """
-Using what you did in the task #0,
-extend your Python script to export data in the JSON format.
+Summary : Api requesting employee information
 """
-
 import json
 import requests
-import sys
+from sys import argv
 
-if __name__ == '__main__':
-    user_id = sys.argv[1]
-    url = "https://jsonplaceholder.typicode.com/"
-    user_data = requests.get(url + "users/" + user_id).json()
-    todo_data = requests.get(url + "todos?userId=" + user_id).json()
+if __name__ == "__main__":
+    """ Module for Asking apis info"""
+    employee_id = argv[1]
+    url_t = f"https://jsonplaceholder.typicode.com/users/{employee_id}/todos"
+    url_u = f"https://jsonplaceholder.typicode.com/users/{employee_id}"
+    response = requests.get(url_t)
+    responseuser = requests.get(url_u)
+    sum = 0
 
-    tasks = []
-    for task in todo_data:
-        task_dict = {
-            "task": task["title"],
-            "completed": task["completed"],
-            "username": user_data["username"]
-        }
-        tasks.append(task_dict)
+    if response.status_code >= 400 and responseuser.status_code >= 400:
+        print("Error fetching data")
+        exit()
+    if response.status_code >= 400 and responseuser.status_code >= 400:
+        print("Error fetching data")
+        exit()
+    employee = response.json()
+    employeeinfo = responseuser.json()
 
-    data = {user_id: tasks}
-
-    with open(user_id + '.json', 'w') as f:
-        json.dump(data, f)
+    lis = []
+    for fields in employee:
+        dic = {}
+        dic["task"] = fields['title']
+        dic["completed"] = fields['completed']
+        dic["username"] = employeeinfo["username"]
+        lis.append(dic)
+    
+    dic2 = {}
+    dic2[employeeinfo["id"]] = lis
+    with open(f"{employeeinfo['id']}.json", "w", encoding="utf-8") as file:
+        file.write(json.dumps(dic2))

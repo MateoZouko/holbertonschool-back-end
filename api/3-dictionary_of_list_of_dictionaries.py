@@ -1,36 +1,32 @@
 #!/usr/bin/python3
 """
-Using what you did in the task #0, extend your
-Python script to export data in the JSON format.
+    Exports data in JSON
 """
-
 import json
 import requests
-import sys
+from sys import argv
 
 if __name__ == '__main__':
-    url = "https://jsonplaceholder.typicode.com"
-    user_u = requests.get(f"{url}/users")
-    todo_u = requests.get(f"{url}/todos")
-    if user_u.ok is False or todo_u.ok is False:
-        print("Error: API request failed.")
-        sys.exit(1)
 
-    user_data = user_u.json()
-    todo_data = todo_u.json()
+    users = requests.get("https://jsonplaceholder.typicode.com/users")
 
-    user_dict = {}
-    for user in user_data:
-        user_id = user["id"]
-        username = user["username"]
-        user_dict[user_id] = []
-        for todo in todo_data:
-            if user_id == todo["userId"]:
-                user_dict[user_id].append({
-                    "username": username,
-                    "task": todo["title"],
-                    "completed": todo["completed"]
-                })
+    users = users.json()
 
-    with open("todo_all_employees.json", "w") as f:
-        json.dump(user_dict, f)
+    data = {}
+    for user in users:
+        list = []
+        todos = requests.get(f"https://jsonplaceholder.typicode.com/\
+            todos?userId={user['id']}")
+        todos = todos.json()
+        for todo in todos:
+            dictionary = {}
+
+            dictionary["username"] = user["username"]
+            dictionary["task"] = todo["title"]
+            dictionary["completed"] = todo["completed"]
+
+            list.append(dictionary)
+        data[f"{user['id']}"] = list
+
+    with open("todo_all_employees.json", "w", encoding="utf-8") as f:
+        f.write(json.dumps(data))
