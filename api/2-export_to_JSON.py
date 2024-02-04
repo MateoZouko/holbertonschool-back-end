@@ -31,7 +31,7 @@ if __name__ == "__main__":
         dic["completed"] = fields['completed']
         dic["username"] = employeeinfo["username"]
         lis.append(dic)
-    
+
     dic2 = {}
     dic2[employeeinfo["id"]] = lis
     with open(f"{employeeinfo['id']}.json", "w", encoding="utf-8") as file:
