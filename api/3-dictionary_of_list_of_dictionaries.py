@@ -1,32 +1,27 @@
 #!/usr/bin/python3
-"""
-    Exports data in JSON
-"""
+"""Script to use a REST API, returns information about
+all tasks from all employees and export in JSON"""
 import json
 import requests
-from sys import argv
 
-if __name__ == '__main__':
 
-    users = requests.get("https://jsonplaceholder.typicode.com/users")
+if __name__ == "__main__":
+    API_URL = "https://jsonplaceholder.typicode.com"
 
-    users = users.json()
+    users = requests.get(f"{API_URL}/users").json()
 
-    data = {}
+    dict_users_tasks = {}
     for user in users:
-        list = []
-        todos = requests.get(f"https://jsonplaceholder.typicode.com/\
-            todos?userId={user['id']}")
-        todos = todos.json()
-        for todo in todos:
-            dictionary = {}
+        tasks = requests.get(f"{API_URL}/users/{user['id']}/todos").json()
 
-            dictionary["username"] = user["username"]
-            dictionary["task"] = todo["title"]
-            dictionary["completed"] = todo["completed"]
+        dict_users_tasks[user["id"]] = []
+        for task in tasks:
+            task_dict = {
+                "username": user["username"],
+                "task": task["title"],
+                "completed": task["completed"]
+            }
+            dict_users_tasks[user["id"]].append(task_dict)
 
-            list.append(dictionary)
-        data[f"{user['id']}"] = list
-
-    with open("todo_all_employees.json", "w", encoding="utf-8") as f:
-        f.write(json.dumps(data))
+    with open("todo_all_employees.json", "w") as file:
+        json.dump(dict_users_tasks, file)
